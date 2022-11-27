@@ -1,29 +1,36 @@
-version: '2.3'
+version: '2.4'
 services:
   minio:
     image: minio/minio
     command: [server, /data]
     volumes:
-      - data:/data
+      - type: volume
+        source: data
+        target: /data
     ports:
       - 9000:9000
       - 9001:9001
     environment:
       MINIO_CONSOLE_ADDRESS: 0.0.0.0:9001
-      MINIO_HTTP_TRACE: /dev/stdout
   mc:
+    # sudo docker compose run --entrypoint=sh mc -- -c 'mc mb mybucket'
     image: minio/mc
     entrypoint: [sleep, infinity]
     volumes:
-      - mc:/root/.mc
+      - type: bind
+        source: ./mc
+        target: /root/.mc
   alpine:
+    # sudo docker compose run --entrypoint=sh alpine -- -c 'apk add --no-cache curl; seq 0 3 | while read -r i; do curl http://haproxy:$(( 8080 + i))/checksums.txt; done'
     image: alpine
     entrypoint: [sleep, infinity]
   haproxy:
     image: haproxy:alpine
     entrypoint: [sleep, infinity]
     volumes:
-      - ./haproxy:/usr/local/etc/haproxy
+      - type: bind
+        source: ./haproxy
+        target: /usr/local/etc/haproxy
     ports:
       - 8080:8080
 volumes:

@@ -1,0 +1,31 @@
+version: '2.3'
+services:
+  minio:
+    image: minio/minio
+    command: [server, /data]
+    volumes:
+      - data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_CONSOLE_ADDRESS: 0.0.0.0:9001
+      MINIO_HTTP_TRACE: /dev/stdout
+  mc:
+    image: minio/mc
+    entrypoint: [sleep, infinity]
+    volumes:
+      - mc:/root/.mc
+  alpine:
+    image: alpine
+    entrypoint: [sleep, infinity]
+  haproxy:
+    image: haproxy:alpine
+    entrypoint: [sleep, infinity]
+    volumes:
+      - ./haproxy:/usr/local/etc/haproxy
+    ports:
+      - 8080:8080
+volumes:
+  data:
+  mc:
